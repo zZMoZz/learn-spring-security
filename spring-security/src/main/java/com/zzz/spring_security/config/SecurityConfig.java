@@ -28,27 +28,4 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable());
         return http.build();
     }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user1 = User.builder()
-                .username("mohsen")
-                .password("{noop}zzz")
-                .roles("user")
-                .build();
-
-        UserDetails user2 = User.builder()
-                .username("shehata")
-                .password("{noop}zzz")
-                .roles("user", "manager")
-                .build();
-
-        UserDetails user3 = User.builder()
-                .username("amr")
-                .password("{noop}zzz")
-                .roles("user", "manager", "admin")
-                .build();
-
-        return new InMemoryUserDetailsManager(user1, user2, user3);
-    }
 }

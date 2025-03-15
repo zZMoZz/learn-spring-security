@@ -1,0 +1,8 @@
+CREATE DATABASE security_db;
+
+CREATE TABLE Person (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(200) NOT NULL,
+    role VARCHAR(45) NOT NULL
+);
