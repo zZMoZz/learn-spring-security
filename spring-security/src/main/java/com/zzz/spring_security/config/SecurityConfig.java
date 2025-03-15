@@ -7,10 +7,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class SecurityConfig {
@@ -31,15 +38,45 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /*
-    * I add this bean because the "AuthController" class say
-    * I can't autowired PasswordEncoder as no bean of it.
-    *  You may say but, there is passwordEncoder where it used in login operation.
-    * You alright but the Authentication provider creates an instance of it locally it is
-    not a bean, so doesn't appear for the rest app files.
+    /* Notes
+         1. we will continue with "DelegatingPasswordEncoder" due to its flexibility
+         2. don't implement multiple beans of the same object like this. I do that for explaining only.
+    */
+
+    /* Case 1 :
+    * this is the configuration that used by the authentication provider by default.
+    * to use it in your project files, you must create a bean of this password encoder.
+    * because authentication provider uses it locally not a bean.
     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+    /* Case 2 :
+    * You want to use "DelegatingPasswordEncoder" with your own configuration
+    */
+    @Bean
+    public PasswordEncoder passwordEncoder2() {
+        // define a map to hold encoders and associated prefix.
+        Map<String, PasswordEncoder> encoderMap = new HashMap<>();
+
+        // Add encoders to map
+        encoderMap.put("bcrypt", new BCryptPasswordEncoder());
+        encoderMap.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoderMap.put("noop", NoOpPasswordEncoder.getInstance());
+
+        // Return, with make "bcrypt" as the default during encoding process
+        return new DelegatingPasswordEncoder("bcrypt", encoderMap);
+    }
+
+    /* Case 3 :
+     * You want to use the default "DelegatingPasswordEncoder", but add some configuration to the bcrypt algorithm.
+     * Note: you can't add or remove password encoders from the default "DelegatingPasswordEncoder".
+     * So,  we will return to the second case and add our bCryptPasswordEncoder to the map.
+     * BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, 20);
+     * You can add both encoders of the same type, only change the prefix.
+     */
+
+
 }
