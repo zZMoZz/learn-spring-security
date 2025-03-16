@@ -1,4 +1,8 @@
 spring:
+    config:
+        import: application-prod.yml
+    profiles:
+        active: default
     datasource:
         driver-class-name: org.postgresql.Driver
         url: jdbc:postgresql://localhost:5431/security_db

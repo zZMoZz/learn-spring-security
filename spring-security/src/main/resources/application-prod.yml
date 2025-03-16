@@ -1,0 +1,10 @@
+# make this file activated during the prod profile only.
+spring:
+    config:
+        activate:
+            on-profile: prod
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5431/security_db
+        username: postgres
+        password: 748295
