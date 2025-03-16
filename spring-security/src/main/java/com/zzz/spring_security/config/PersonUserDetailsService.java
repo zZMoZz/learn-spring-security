@@ -1,5 +1,6 @@
 package com.zzz.spring_security.config;
 
+import com.zzz.spring_security.entity.Authority;
 import com.zzz.spring_security.entity.Person;
 import com.zzz.spring_security.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +17,19 @@ public class PersonUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // fetch the user details and roles from the database
+        // fetch the user details
         Person user = personRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // fetch the roles
+        String[] roles =  user.getAuthorities().stream().map(Authority::getAuthority).toArray(String[]::new);
 
         // build UserDetails object and return it the authentication provider
         return User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole()) // it receives a string list of roles
-                .build();
+                .authorities(roles) // if you use "roles()" method will return an error,
+                .build();                  // because roles() method adds "ROLE_" prefix, which means
+                                               // roles() method want roles written in this format "USER" not "ROLE_USER"
     }
 }

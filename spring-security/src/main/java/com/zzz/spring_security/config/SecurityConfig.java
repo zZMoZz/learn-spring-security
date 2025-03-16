@@ -27,7 +27,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         // write some authorization rules for endpoints
         http.authorizeHttpRequests(request -> request
-                .requestMatchers("/test1", "/test2").authenticated()
+                .requestMatchers("/test1").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/test2").hasRole("ADMIN")
                 .requestMatchers("/test3", "/test4", "/error", "/register").permitAll() // without permit "/error", the error details will not appear for the client.
                 .requestMatchers("/test5").denyAll());
 

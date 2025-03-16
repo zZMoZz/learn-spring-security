@@ -3,6 +3,8 @@ package com.zzz.spring_security.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "Person")
 @AllArgsConstructor @NoArgsConstructor
@@ -19,6 +21,6 @@ public class Person {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "role")
-    private String role;
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
+    private Set<Authority> authorities; // <== one person can have many authorities>
 }
