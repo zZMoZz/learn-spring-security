@@ -1,5 +1,7 @@
 package com.zzz.spring_security.config;
 
+import com.zzz.spring_security.exception.CustomAccessDeniedHandler;
+import com.zzz.spring_security.exception.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -29,12 +31,16 @@ public class SecurityConfig {
                 .requestMatchers("/test3", "/test4", "/error", "/register").permitAll() // without permit "/error", the error details will not appear for the client.
                 .requestMatchers("/test5").denyAll());
 
-        // apply http basic with default configuration
-        http.httpBasic(Customizer.withDefaults());
+        // apply http basic with adding exception handler for `AuthenticationException` for http basic only not globally
+        http.httpBasic(hpc -> hpc
+                .authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         // you can only delete the method to deactivate it, but to be make sure, explicitly disable it
         http.formLogin(flc -> flc.disable())
         // disable csrf
         .csrf(csrf -> csrf.disable());
+        // add exception handler for `AccessDeniedException` globally
+        http.exceptionHandling(ehc -> ehc
+                .accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
 
